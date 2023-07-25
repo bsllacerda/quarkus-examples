@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-connection-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-connection-test
+  template:
+    metadata:
+      labels:
+        app: db-connection-test
+    spec:
+      containers:
+      - name: db-connection-test
+        image: bsllacerda/quarkus:test-db-connection
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: db-config
+        - secretRef:
+            name: db-credentials
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-connection-test
+spec:
+  type: ClusterIP
+  selector:
+    app: db-connection-test
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: db-connection-test
+spec:
+  rules:
+  - host: my-kubernetes.com.br
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/config-test"
+        backend:
+          service:
+            name: db-connection-test
+            port:
+              number: 80

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Database Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            fetch('/db')
+                .then(response => response.json())
+                .then(result => {
+                    const resultElement = document.getElementById('result');
+                    resultElement.textContent = result.message;
+                    if (result.status === 'SUCCESS') {
+                        document.body.style.backgroundColor = 'lightgreen';
+                    } else if (result.status === 'FAILURE') {
+                        document.body.style.backgroundColor = 'salmon';
+                    } else {
+                        document.body.style.backgroundColor = 'gray';
+                    }
+                });
+        }
+    </script>
+</head>
+<body>
+    <h1>Database Connection Test</h1>
+    <p id="result">Loading...</p>
+</body>
+</html>
