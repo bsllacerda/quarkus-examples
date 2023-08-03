@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+type: Opaque
+data:
+  password: LW4gJ3Bhc3N3b3JkJyANCg==
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quarkus-mysql-connection
+spec:
+  type: ClusterIP
+  selector:
+    app: quarkus-mysql-connection
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quarkus-mysql-connection
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quarkus-mysql-connection
+  template:
+    metadata:
+      labels:
+        app: quarkus-mysql-connection
+    spec:
+      containers:
+      - name: quarkus-mysql-connection
+        image: bsllacerda/quarkus-examples:quarkus-mysql-connection@sha256:3128ac71160c3371dd4f365ee6a2024aeac139c345621a2f452a019ab7c936f9
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: db-config
+        - secretRef:
+            name: db-credentials
+      - name: mysql
+        image: mysql:8.0
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: password
+          - name: MYSQL_DATABASE
+            value: quarkus
+          - name: MYSQL_USER
+            value: quarkus
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: password
+        ports:
+          - containerPort: 3306
+        volumeMounts:
+          - name: mysql-storage
+            mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quarkus-mysql-connection
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: my-kubernetes.com.br
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        path: /quarkus-mysql-connection(/|$)(.*)
+        backend:
+          service:
+            name: quarkus-mysql-connection
+            port:
+              number: 80

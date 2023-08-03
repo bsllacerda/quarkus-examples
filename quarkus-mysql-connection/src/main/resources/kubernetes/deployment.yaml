@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db-connection-test
+  name: quarkus-mysql-connection
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: db-connection-test
+      app: quarkus-mysql-connection
   template:
     metadata:
       labels:
-        app: db-connection-test
+        app: quarkus-mysql-connection
     spec:
       containers:
-      - name: db-connection-test
-        image: bsllacerda/quarkus:test-db-connection
+      - name: quarkus-mysql-connection
+        image: bsllacerda/quarkus-examples:quarkus-mysql-connection@sha256:3128ac71160c3371dd4f365ee6a2024aeac139c345621a2f452a019ab7c936f9
         ports:
         - containerPort: 8080
         envFrom:
@@ -26,11 +26,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: db-connection-test
+  name: quarkus-mysql-connection
 spec:
   type: ClusterIP
   selector:
-    app: db-connection-test
+    app: quarkus-mysql-connection
   ports:
     - protocol: TCP
       port: 80
@@ -39,16 +39,20 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: db-connection-test
+  name: quarkus-mysql-connection
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
+  ingressClassName: nginx
   rules:
   - host: my-kubernetes.com.br
     http:
       paths:
-      - pathType: Prefix
-        path: "/config-test"
+      - pathType: ImplementationSpecific
+        path: /quarkus-mysql-connection(/|$)(.*)
         backend:
           service:
-            name: db-connection-test
+            name: quarkus-mysql-connection
             port:
               number: 80

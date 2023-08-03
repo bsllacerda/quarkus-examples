@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quarkus-mysql-connection
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quarkus-mysql-connection
+  template:
+    metadata:
+      labels:
+        app: quarkus-mysql-connection
+    spec:
+      containers:
+      - name: quarkus-mysql-connection
+        image: bsllacerda/quarkus-examples:quarkus-mysql-connection@sha256:3128ac71160c3371dd4f365ee6a2024aeac139c345621a2f452a019ab7c936f9
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: db-config
+        - secretRef:
+            name: db-credentials
+      - name: mysql
+        image: mysql:5.7
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: password
+        ports:
+          - containerPort: 3306
+        volumeMounts:
+          - name: mysql-storage
+            mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+
