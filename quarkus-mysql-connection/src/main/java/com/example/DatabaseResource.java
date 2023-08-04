@@ -9,11 +9,12 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.jboss.logging.Logger;
+import io.quarkus.logging.Log;
 
 @Path("/db")
 public class DatabaseResource {
 
-    private static final Logger LOG = Logger.getLogger(DatabaseResource.class);
+    //private static final Logger LOG = Logger.getLogger(DatabaseResource.class);
 
     @Inject
     DataSource dataSource;
@@ -21,21 +22,23 @@ public class DatabaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ConnectionTestResult testConnection() {
+        Log.info("Executando endpoint db");
         ConnectionTestResult result = new ConnectionTestResult();
+
         try (Connection connection = dataSource.getConnection()) {
             if (connection.isValid(1000)) {
                 result.setStatus("SUCCESS");
                 result.setMessage("Connection is valid! 🙂");
-                LOG.info("Connection is valid!");
+                Log.info("Connection is valid!");
             } else {
                 result.setStatus("FAILURE");
                 result.setMessage("Connection is not valid. 😢");
-                LOG.warn("Connection is not valid.");
+                Log.warn("Connection is not valid.");
             }
         } catch (SQLException exception) {
             result.setStatus("ERROR");
-            result.setMessage("Failed to create a connection. 😢");
-            LOG.error("Failed to create a connection.", exception);
+            result.setMessage("Failed to create a connection. 😢" + exception.getMessage());
+            Log.error("Failed to create a connection.", exception);
         }
         return result;
     }
