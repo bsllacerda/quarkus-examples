@@ -10,7 +10,8 @@
     </style>
     <script>
         window.onload = function() {
-            fetch('/quarkus-mysql-connection/db')
+            //fetch('/quarkus-mysql-connection/db')
+			  fetch('/myapp/db')
                 .then(response => response.json())
                 .then(result => {
                     const resultElement = document.getElementById('result');
