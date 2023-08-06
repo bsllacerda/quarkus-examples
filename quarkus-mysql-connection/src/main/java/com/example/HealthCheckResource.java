@@ -19,7 +19,7 @@ public class HealthCheckResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String healthCheck() {
+    public ConnectionTestResult healthCheck() {
         Log.info("Executando healthCheck");
 		ConnectionTestResult result = new ConnectionTestResult();
         try (Connection connection = dataSource.getConnection()) {
