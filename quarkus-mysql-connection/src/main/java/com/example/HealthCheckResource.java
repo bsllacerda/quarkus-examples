@@ -21,6 +21,7 @@ public class HealthCheckResource {
     @Produces(MediaType.APPLICATION_JSON)
     public String healthCheck() {
         Log.info("Executando healthCheck");
+		ConnectionTestResult result = new ConnectionTestResult();
         try (Connection connection = dataSource.getConnection()) {
             if (connection.isValid(1000)) {
                 result.setStatus("SUCCESS");
