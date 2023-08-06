@@ -11,22 +11,35 @@ import java.sql.SQLException;
 import org.jboss.logging.Logger;
 import io.quarkus.logging.Log;
 
-@Path("/healthz")
+@Path("")
 public class HealthCheckResource {    
 
     @Inject
     DataSource dataSource;
 
+	@GET
+    @Produces(MediaType.APPLICATION_JSON)
+	@Path("/healthz")
+    public ConnectionTestResult healthzCheck() {        
+		Log.info("Executando healthCheck");
+		ConnectionTestResult result = new ConnectionTestResult();        
+        result.setStatus("SUCCESS");
+        result.setMessage("OK");
+        Log.info("Health: OK");            
+        return result;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ConnectionTestResult healthCheck() {
-        Log.info("Executando healthCheck");
+	@Path("/ready")
+    public ConnectionTestResult readyCheck() {
+        Log.info("Executando readyCheck");
 		ConnectionTestResult result = new ConnectionTestResult();
         try (Connection connection = dataSource.getConnection()) {
             if (connection.isValid(1000)) {
                 result.setStatus("SUCCESS");
                 result.setMessage("OK");
-                Log.info("OK");
+                Log.info("Ready: OK");
             } else {
                 result.setStatus("FAILURE");
                 result.setMessage("Failed");
