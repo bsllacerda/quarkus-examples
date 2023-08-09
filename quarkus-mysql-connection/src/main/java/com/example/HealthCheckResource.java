@@ -38,7 +38,7 @@ public class HealthCheckResource {
         long secondsSinceStart = ChronoUnit.SECONDS.between(startTime, now);
 
         if (secondsSinceStart < 30) {
-			Log.warn("Not Started Yet! A Aplicação ainda está inicializando...");
+			Log.warn("A Aplicação ainda está inicializando...");
             // Return a 503 Service Unavailable status for the first 60 seconds
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
                     .entity("Application is still warming up!")
