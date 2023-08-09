@@ -42,7 +42,7 @@ public class HealthCheckResource {
 		
         if (secondsSinceStart < INITIALIZE_PERIOD) {
 			Log.warn("A Aplicação ainda está inicializando...");
-            // Return a 503 Service Unavailable status for the first 60 seconds
+            // Return a 503 Service Unavailable status for the first X seconds
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
                     .entity("Application is still warming up!")
                     .build();
@@ -67,19 +67,25 @@ public class HealthCheckResource {
 	}
 
 	@GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
 	@Path("/healthz")
-    public ConnectionTestResult healthzCheck() {   
+    public Response healthzCheck() {   
 	
-		Log.info("Executando healthCheck");
-
-		ConnectionTestResult result = new ConnectionTestResult();        
-        result.setStatus("SUCCESS");
-        result.setMessage("OK");
-
-        Log.info("Health: OK");            
-
-        return result;
+		Log.info("Executando healthCheck");		        
+		
+		if ( getHealthStatusConfig() ) {			
+			Log.info("Health: OK");			
+			// Return a 200 OK
+			return Response.status(Response.Status.OK)
+				.entity("Application is Healthy :-)")
+				.build();			
+		} else {			
+			Log.warn("Healthy: NO");			
+			// Return a 503 Service Unavailable status for the first X seconds			
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+				.entity("Application is Unhealthy :-(")
+				.build();			
+		}
     }
 	
 	private static boolean getHealthStatusConfig() {
