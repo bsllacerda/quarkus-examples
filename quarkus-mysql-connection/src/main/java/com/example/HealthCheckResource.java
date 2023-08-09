@@ -20,6 +20,7 @@ public class HealthCheckResource {
     DataSource dataSource;
 	
 	private final LocalDateTime startTime = LocalDateTime.now();
+	private static final int INITIALIZE_PERIOD = getInitializationPeriod();
 	
 	/**
 	 * Neste código, ao instanciar StartupProbeResource, a hora atual é registrada.
@@ -37,7 +38,7 @@ public class HealthCheckResource {
 		LocalDateTime now = LocalDateTime.now();
         long secondsSinceStart = ChronoUnit.SECONDS.between(startTime, now);
 
-        if (secondsSinceStart < 30) {
+        if (secondsSinceStart < INITIALIZE_PERIOD) {
 			Log.warn("A Aplicação ainda está inicializando...");
             // Return a 503 Service Unavailable status for the first 60 seconds
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
@@ -50,6 +51,18 @@ public class HealthCheckResource {
         return Response.ok("Application started!").build();
 
     }
+	
+	private static int getInitializationPeriod() {
+		Log.info("Obtendo configuração do período de inicialização da aplicação...");
+		String period = System.getenv("INITIALIZE_PERIOD");
+		try {
+			Log.info("INITIALIZE_PERIOD = " + period);
+			return Integer.parseInt(period);
+		} catch (NumberFormatException e) {
+			Log.warn("Variável de ambiente INITIALIZE_PERIOD não encontrada ou invalida. Retornando período de inicialização padrão de 30 segundos");
+			return 30;
+		}
+	}
 
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
