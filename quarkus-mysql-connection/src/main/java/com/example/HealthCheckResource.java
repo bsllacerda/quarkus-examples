@@ -104,35 +104,23 @@ public class HealthCheckResource {
     @Produces(MediaType.APPLICATION_JSON)
 	@Path("/ready")
     public ConnectionTestResult readyCheck() {
-
         Log.info("Executando readyCheck");
-
 		ConnectionTestResult result = new ConnectionTestResult();
-
-        try (Connection connection = dataSource.getConnection()) {
-			
-            if (connection.isValid(1000)) {
-				
+        try (Connection connection = dataSource.getConnection()) {			
+            if (connection.isValid(1000)) {				
                 result.setStatus("SUCCESS");
-                result.setMessage("OK");
-				
-                Log.info("Ready: OK");
-				
-            } else {
-				
+                result.setMessage("OK");				
+                Log.info("Ready: OK");				
+            } else {				
                 result.setStatus("FAILURE");
-                result.setMessage("Failed");
-				
+                result.setMessage("Failed");				
                 Log.warn("Not Ready! Connection is not valid.");
             }
-        } catch (SQLException exception) {
-			
+        } catch (SQLException exception) {			
             result.setStatus("ERROR");
-            result.setMessage("Failed to create a connection. \nMessage: " + exception.getMessage());
-			
+            result.setMessage("Failed to create a connection. \nMessage: " + exception.getMessage());			
             Log.error("Not Ready! Failed to create a connection.", exception);
         }
-
         return result;
     }	
 

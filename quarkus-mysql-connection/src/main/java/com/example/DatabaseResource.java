@@ -8,13 +8,10 @@ import jakarta.ws.rs.core.MediaType;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.jboss.logging.Logger;
 import io.quarkus.logging.Log;
 
 @Path("/db")
-public class DatabaseResource {
-
-    //private static final Logger LOG = Logger.getLogger(DatabaseResource.class);
+public class DatabaseResource {    
 
     @Inject
     DataSource dataSource;
