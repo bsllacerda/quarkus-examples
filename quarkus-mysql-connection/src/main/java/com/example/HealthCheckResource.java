@@ -24,7 +24,7 @@ public class HealthCheckResource {
 	/**
 	 * Neste código, ao instanciar StartupProbeResource, a hora atual é registrada.
 	 * Cada vez que o endpoint /startup é acessado, calculamos quantos segundos se passaram desde a inicialização.
-	 * Durante os primeiros 60 segundos, o endpoint retorna um status HTTP 503 (Service Unavailable).
+	 * Durante os primeiros 30 segundos, o endpoint retorna um status HTTP 503 (Service Unavailable).
 	 * Após 60 segundos, ele retorna um status HTTP 200 com a mensagem "Service ready!".
 	 */
 	@GET
@@ -37,7 +37,7 @@ public class HealthCheckResource {
 		LocalDateTime now = LocalDateTime.now();
         long secondsSinceStart = ChronoUnit.SECONDS.between(startTime, now);
 
-        if (secondsSinceStart < 60) {
+        if (secondsSinceStart < 30) {
 			Log.warn("Not Started Yet! A Aplicação ainda está inicializando...");
             // Return a 503 Service Unavailable status for the first 60 seconds
             return Response.status(Response.Status.SERVICE_UNAVAILABLE)
