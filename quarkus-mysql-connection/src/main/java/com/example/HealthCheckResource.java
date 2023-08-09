@@ -26,7 +26,7 @@ public class HealthCheckResource {
 	 * Neste código, ao instanciar StartupProbeResource, a hora atual é registrada.
 	 * Cada vez que o endpoint /startup é acessado, calculamos quantos segundos se passaram desde a inicialização.
 	 * Durante os primeiros 30 segundos, o endpoint retorna um status HTTP 503 (Service Unavailable).
-	 * Após 60 segundos, ele retorna um status HTTP 200 com a mensagem "Service ready!".
+	 * Após 30 segundos, ele retorna um status HTTP 200 com a mensagem "Service ready!".
 	 */
 	@GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -81,6 +81,18 @@ public class HealthCheckResource {
 
         return result;
     }
+	
+	private static boolean getHealthStatusConfig() {
+		Log.info("Obtendo configuração do status do endpoint helathz...");
+		String status = System.getenv("HEALTH_STATUS_OK");
+		Log.info("Configuração HEALTH_STATUS_OK = " + status);
+		if ("true".equalsIgnoreCase(status) || "false".equalsIgnoreCase(status)) {			
+			return Boolean.valueOf(status);
+		} else {
+			Log.warn("Configuração HEALTH_STATUS_OK nao definida ou invalida. Retornando false");
+			return Boolean.FALSE;
+		}		
+	}
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
