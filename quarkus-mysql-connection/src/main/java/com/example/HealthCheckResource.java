@@ -37,7 +37,9 @@ public class HealthCheckResource {
 		
 		LocalDateTime now = LocalDateTime.now();
         long secondsSinceStart = ChronoUnit.SECONDS.between(startTime, now);
-
+		
+		Log.info("Segundos decorridos após subida da aplicação: " + secondsSinceStart)
+		
         if (secondsSinceStart < INITIALIZE_PERIOD) {
 			Log.warn("A Aplicação ainda está inicializando...");
             // Return a 503 Service Unavailable status for the first 60 seconds
