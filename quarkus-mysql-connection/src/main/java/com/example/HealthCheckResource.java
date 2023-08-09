@@ -38,7 +38,7 @@ public class HealthCheckResource {
 		LocalDateTime now = LocalDateTime.now();
         long secondsSinceStart = ChronoUnit.SECONDS.between(startTime, now);
 		
-		Log.info("Segundos decorridos após subida da aplicação: " + secondsSinceStart)
+		Log.info("Segundos decorridos após subida da aplicação: " + secondsSinceStart);
 		
         if (secondsSinceStart < INITIALIZE_PERIOD) {
 			Log.warn("A Aplicação ainda está inicializando...");
